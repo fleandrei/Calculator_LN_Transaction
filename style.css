@@ -59,6 +59,20 @@ table {
     margin: auto;
 }
 
+#Invoice_Table tr td, th {
+    max-width : 250px;
+    word-wrap: break-word;
+    border: 1px solid white;
+
+    /*overflow-x : scroll;*/
+}
+
+#Invoice_Table tr th {
+    /*border: 1px solid white;*/
+    background-color: blue;
+    /*overflow-x : scroll;*/
+}
+
 button {
     border: none;
     background-color: white;
@@ -105,6 +119,8 @@ a:hover{
     z-index: 100;
     position: fixed;
 }
+
+
 
 @media (orientation: landscape) and (max-height: 500px) {
     #turn {

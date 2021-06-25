@@ -1,0 +1,19 @@
+{
+  "name": "projet",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@grpc/proto-loader": "^0.6.2",
+    "async": "^3.2.0",
+    "bytebuffer": "^5.0.1",
+    "grpc": "^1.24.10",
+    "lodash": "^4.17.21",
+    "socket.io": "^4.1.2"
+  }
+}

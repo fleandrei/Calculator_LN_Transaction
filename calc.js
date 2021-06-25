@@ -19,6 +19,10 @@ for (item of buttons) {
         }
         else if (buttonText == '=') {
             screen.value = eval(screenValue);
+
+        /*Create Lightning network Invoice*/
+            Send_Invoice();
+
         }
         else {
             screenValue += buttonText;
@@ -27,6 +31,25 @@ for (item of buttons) {
 
     })
 }
+
+var socket = io();
+
+function Send_Invoice(){
+    socket.emit("Send_Invoice","");
+}
+
+socket.on('Invoice_created', function(Invoice){
+    console.log("Created Invoice:",Invoice);
+    var Invoice_Show = document.getElementById('LN_Invoice_Created');
+    Invoice_Show.style.display="block";
+    var Table = Invoice_Show.querySelector("table");
+    var Tr = Table.querySelectorAll("tr")
+    Tr[1].querySelectorAll("td")[1].innerText=Invoice.r_hash;
+    Tr[2].querySelectorAll("td")[1].innerText=Invoice.payment_request
+    Tr[3].querySelectorAll("td")[1].innerText=Invoice.add_index
+    Tr[4].querySelectorAll("td")[1].innerText=Invoice.payment_addr
+});
+
 
 document.addEventListener("keydown", function(event) {
     console.log(event.which);

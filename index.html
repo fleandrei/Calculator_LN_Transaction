@@ -10,6 +10,10 @@
 	<link href="https://fonts.googleapis.com/css?family=Fjalla+One&display=swap" rel="stylesheet">
 	<!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-70447982-5"></script>
+
+<!--Script permettant d'effectuer des communications websocket avec le serveur -->
+<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
@@ -102,10 +106,42 @@
 			<div style="font-size:1rem; display: flex; align-items: center; justify-content: center;">Made with <img style="margin: 0.15rem;" src="heart.png">by<a style="text-decoration: none; color: #f1c40f; margin-left: 0.25rem;"
                 target="_blank" href="https://harsh98trivedi.github.io">Harsh Trivedi</a></div>
 		</div>
+
+		<hr style="max-width: 50vw;">
+
+	<div id="LN_Invoice_Created" style="display: none">
+		<h3> Invoice Created </h3>
+    	 <table id="Invoice_Table" style="width:70% ; border-collapse: collapse" >
+		  <tr>
+		    <th>Properties</th>
+		    <th colspan="3">Value</th>
+		  </tr>
+		  <tr>
+		    <td>r_hash</td>
+		    <td></td>
+		  </tr>
+		  <tr>
+		    <td>payment_request</td>
+		    <td></td>
+		  </tr>
+		  <tr>
+		    <td>add_index</td>
+		    <td></td>
+		  </tr>
+		  <tr>
+		    <td>payment_addr</td>
+		    <td></td>
+		  </tr>
+		</table> 
+	</div>
+
 	</div>
     <div id="turn">
     PLEASE TURN YOUR DEVICE
 	</div>
+
+	
+
 </body>
 <script src="calc.js"></script>
 </html>
