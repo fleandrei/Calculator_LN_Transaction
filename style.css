@@ -59,17 +59,24 @@ table {
     margin: auto;
 }
 
-#Invoice_Table tr td, th {
+.Invoice_Table tr td, th {
     max-width : 250px;
     word-wrap: break-word;
     border: 1px solid white;
-
+    
     /*overflow-x : scroll;*/
 }
 
-#Invoice_Table tr th {
+#Invoice_Created_Table tr th {
     /*border: 1px solid white;*/
     background-color: blue;
+    /*overflow-x : scroll;*/
+}
+
+
+#Invoice_Settled_Table tr th {
+    /*border: 1px solid white;*/
+    background-color: green;
     /*overflow-x : scroll;*/
 }
 

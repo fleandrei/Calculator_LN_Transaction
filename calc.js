@@ -20,7 +20,7 @@ for (item of buttons) {
         else if (buttonText == '=') {
             screen.value = eval(screenValue);
 
-        /*Create Lightning network Invoice*/
+/*#######################Initie une transaction côté serveur quand on appuie sur "=" #####################*/
             Send_Invoice();
 
         }
@@ -32,12 +32,21 @@ for (item of buttons) {
     })
 }
 
-var socket = io();
 
+
+                                    /*LN code*/
+/*##############################################################################"*/
+
+var socket = io(); //Websocket
+
+//Initie une transaction côté serveur
 function Send_Invoice(){
     socket.emit("Send_Invoice","");
+    var Invoice_Show = document.getElementById('LN_Invoice_Settled');
+    Invoice_Show.style.display="none";
 }
 
+//Question 1: Affiche la facture LN
 socket.on('Invoice_created', function(Invoice){
     console.log("Created Invoice:",Invoice);
     var Invoice_Show = document.getElementById('LN_Invoice_Created');
@@ -48,7 +57,28 @@ socket.on('Invoice_created', function(Invoice){
     Tr[2].querySelectorAll("td")[1].innerText=Invoice.payment_request
     Tr[3].querySelectorAll("td")[1].innerText=Invoice.add_index
     Tr[4].querySelectorAll("td")[1].innerText=Invoice.payment_addr
+
 });
+
+//Question 2: Affiche du résultat de la transaction
+socket.on('Invoice_Settled', function(Invoice){
+    console.log(" Invoice Settled :",Invoice);
+    var Invoice_Show = document.getElementById('LN_Invoice_Settled');
+    Invoice_Show.style.display="block";
+    var Table = Invoice_Show.querySelector("table");
+    var Tr = Table.querySelectorAll("tr")
+    Tr[1].querySelectorAll("td")[1].innerText=Invoice.payment_preimage;
+    Tr[2].querySelectorAll("td")[1].innerText=Invoice.payment_hash;
+    Tr[3].querySelectorAll("td")[1].innerText=Invoice.payment_route.total_amt;
+    Tr[4].querySelectorAll("td")[1].innerText=Invoice.payment_route.total_amt_msat;
+    Tr[5].querySelectorAll("td")[1].innerText=Invoice.payment_route.total_fees;
+    Tr[6].querySelectorAll("td")[1].innerText=Invoice.payment_route.total_fees_msat;
+});
+
+
+/*##############################################################################"*/
+
+
 
 
 document.addEventListener("keydown", function(event) {

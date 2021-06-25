@@ -6,6 +6,15 @@ const http = require('http')
 const io = require('socket.io')
 const path = require("path");
 
+
+/*On récupère les paramètres du fichier de configuration App_config*/
+var Config_file = fs.readFileSync("App_config").toString();
+var Param = Config_file.split("\n");
+
+const Listening_Port = parseInt(Param[0].split(":")[1], "10")
+const TLS_Cert_Path =  Param[1].split(":")[1]
+
+
 // Due to updated ECDSA generated tls.cert we need to let gprc know that
 // we need to use that cipher suite otherwise there will be a handhsake
 // error when we communicate with the lnd rpc server.
@@ -41,7 +50,7 @@ let macaroonCreds_Bob = grpc.credentials.createFromMetadataGenerator((_args, cal
 
 //  Lnd cert is at ~/.lnd/tls.cert on Linux and
 //  ~/Library/Application Support/Lnd/tls.cert on Mac
-let lndCert = fs.readFileSync("../../.lnd/tls.cert");
+let lndCert = fs.readFileSync(TLS_Cert_Path);
 let sslCreds = grpc.credentials.createSsl(lndCert);
 
 let credentials_Alice = grpc.credentials.combineChannelCredentials(sslCreds, macaroonCreds_Alice);
@@ -51,15 +60,10 @@ let lnrpc = lnrpcDescriptor.lnrpc;
 let Alice = new lnrpc.Lightning('localhost:10001', credentials_Alice);
 let Bob = new lnrpc.Lightning('localhost:10002', credentials_Bob);
 
-let Bob_Pubkey=""
-let Alice_Pubkey="";
 
-
-const front_file_name = "/index.html"
-
-
+/*Création d'un serveur HTTP et d'un listener Websocket*/
 var server = http.createServer(function(r, s){ handler(r,s); });
-server.listen(8080);
+server.listen(Listening_Port);
 var websocket = io(server);
 
 /*HTTP communications Handling*/
@@ -91,114 +95,47 @@ function handler(req, res)
 }
 
 
-/*Websocket channel for Lightning network handling*/
+/*Websocket channel pour recevoir la requète client demandant d'effectuer la transaction */
 websocket.on('connection', function (socket) {
-	console.log(`Connecté au client ${socket.id}`)
-  socket.on('Send_Invoice', function (data) {
-  	console.log("Send_Invoice received")
+	socket.on('Send_Invoice', function (data) {
   	Invoice(websocket);
-    //socket.broadcast.emit('message', data);
   });
 });
 
 
+/*Fonction chargée d'effectuer la transaction sur le Lightning Network entre Alice et Bob*/
 function Invoice(websocket){
-	Bob.addInvoice({value:2}, function(err, Invoice) {
+	Bob.addInvoice({value:2}, function(err, Invoice) { //Bob initie la transaction en créant une facture (Invoice)
 	if(err){
 		console.log("Err:",err);
 	}
-  	console.log("\nInvoice: ",Invoice);
+
+	/*On convertit les champs dont les valeurs sont binaire en string */
   	let Invoice_Human_Readable = Object.assign({}, Invoice) ;
-  	/*Invoice_Human_Readable.r_hash= ByteBuffer.fromBinary(Invoice.r_hash);
-  	Invoice_Human_Readable.payment_addr= ByteBuffer.fromBinary(Invoice.payment_addr);*/
   	Invoice_Human_Readable.r_hash= Invoice.r_hash.toString("hex");
   	Invoice_Human_Readable.payment_addr= Invoice.payment_addr.toString("hex");
-  	console.log("\n\nInvoice:",Invoice);
-  	console.log("\n\nInvoice_Human_Readable:",Invoice_Human_Readable);
+  	
+  	/*On envoie au client la facture ainsi initialisée*/
   	websocket.emit("Invoice_created", Invoice_Human_Readable);
 
-  	/*let call = Alice.sendPayment({});
+  	/*Alice paie la facture*/
+  	let call = Alice.sendPayment({});
   	call.write({payment_request:Invoice.payment_request})
-  	call.on('data', function(payment,err) {
+  	call.on('data', function(Payment,err) {
 		if(err){
 			console.log("Error:"+err);
 		}
-	  	console.log("Invoice Payment sent:");
-	  	console.log(payment);
-	});*/
+
+		/*On convertit les champs dont les valeurs sont binaire en string */
+		let Payment_Human_Readable = Object.assign({}, Payment);
+		Payment_Human_Readable.payment_preimage= Payment.payment_preimage.toString("hex");
+		Payment_Human_Readable.payment_hash= Payment.payment_hash.toString("hex");
+
+		/*On envoie au client les résultats de la transaction*/
+	  	websocket.emit("Invoice_Settled", Payment_Human_Readable);
+	});
 });
 }
 
 
-/*lightning.getInfo({}, function(err, response) {
-  if (err) {
-    console.log('Error: ' + err);
-  }
-  console.log('GetInfo:', response);
-});*/
 
-/*Bob.getInfo({}, function(err,response){
-	if (err) {
-    console.log('Error: ' + err);
-  }
-  Bob_Pubkey = response.identity_pubkey;
-  let Bob_Pubkey_Bytes =  ByteBuffer.fromHex(Bob_Pubkey);
-  Alice.openChannelSync({node_pubkey:Bob_Pubkey_Bytes, local_funding_amount:10000}, function(err, response) {
-  	console.log("Channel oppened", response);
-  })
-})*/
-
-/*Alice.listPeers({}, function(err,Peers){
-	let Bob_Pubkey = Peers.peers[0].pub_key;
-	console.log("Bob_Pubkey:",Bob_Pubkey);
-
-	let call = Alice.sendPayment({});
-	call.on('data', function(payment,err) {
-		if(err){
-			console.log("Error:"+err);
-		}
-	  console.log("Payment sent:");
-	  console.log(payment);
-	});
-	call.on('end', function() {
-	  // The server has finished
-	  console.log("END");
-	});
-
-	let dest_pubkey = '0232cb91df69cefeb37c0bbf1fc6d87a1a65fcd4a84980d0ebac192efa0d2757dc';
-	let dest_pubkey_bytes = ByteBuffer.fromHex(Bob_Pubkey);
-	console.log("\ndest_pubkey_bytes:",dest_pubkey_bytes, ",  Type:",typeof dest_pubkey_bytes);
-
-	// You can send single payments like this
-	call.write({ dest: dest_pubkey_bytes.buffer, amt: 6969 });
-	//call.write({ dest_string: Bob_Pubkey, amt: 6969 });
-})*/
-
-/*let Invoice_subscribed = Bob.subscribeInvoices({});
-
-Invoice_subscribed.on("data",function(invoice) {
-    console.log("Bob: Invoice receipte":,invoice);
-})
-.on('status', function(status) {
-  // Process status
-  console.log("Current status" + status);
-});
-
-
-
-Bob.addInvoice({value:2}, function(err, Invoice) {
-	if(err){
-		console.log("Err:",err);
-	}
-  //console.log("\nInvoice: ",Invoice);
-  let call = Alice.sendPayment({});
-  call.write({payment_request:Invoice.payment_request})
-  call.on('data', function(payment,err) {
-		if(err){
-			console.log("Error:"+err);
-		}
-	  console.log("Invoice Payment sent:");
-	  console.log(payment);
-
-	});
-});*/
