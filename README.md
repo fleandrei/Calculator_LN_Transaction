@@ -148,5 +148,14 @@ Pour utiliser l'application, on doit:
 * https://api.lightning.community/?javascript#lnd-grpc-api-reference
 
 
+## Notes
+
+J'ai commencé rapidement un code __Initialisation.js__ permettant d'automatiser l'authentification aux ldn, la génération d'adresses, la connexion et la création de canneaux de paiement entre Alice et Bob.
+Ce code n'est pas terminé mais je ne souhaite pas y conssacrer plus de temps pour le moment. 
+
+Par ailleurs, je n'ai pas le temps de faire les execices 3 et 4. 
+Si il avait fallu y passer plus de temps, j'aurrait regardé plus en détail le tuto [Working with LND and Docker](https://dev.lightning.community/guides/docker/) pour gérer les noeuds btcd et lnd avec docker. J'aurrai également fait des recherches pour trouver une library node.js permettant d'intéragir avec le btcd (dans le style de  BitcoinJS pour bitcoind) afin notamment de pourvoir passer du simnet au mainnet. Ou alors j'aurrai abandonné btcd au profit de bitcoind afin de pouvoir utiliser BitcoinJS et de bénéficier d'une communauté et d'une documentation plus importante.
+
+
 
 
