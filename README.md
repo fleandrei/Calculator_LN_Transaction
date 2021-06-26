@@ -9,7 +9,7 @@ Les transactions se font sur le réseau de test privé et local __simnet__ (équ
 
 
 
-## Instalation
+## Instalation des clients Bitcoin et Lightning network
 
 On s'inspire de ce [Tuto](https://dev.lightning.community/guides/installation/).
 Notons que pour pouvoir utiliser dans n'importe quel répertoire les outils que nous allons installer, il faut ajouter _$GOPATH/bin_ dans _$PATH_.
@@ -19,7 +19,9 @@ Notons que pour pouvoir utiliser dans n'importe quel répertoire les outils que 
 On installe le client __lnd__ ainsi que son gestionnaire en ligne de commande __lncli__:
 
 `$ go get -d github.com/lightningnetwork/lnd`
+
 `$ cd $GOPATH/src/github.com/lightningnetwork/lnd`
+
 `$ make && make install`
 
 
@@ -28,7 +30,9 @@ On installe le client __lnd__ ainsi que son gestionnaire en ligne de commande __
 On installe le client bitcoin __btcd__ ainsi que son gestionnaire en ligne de commande __btcctl__. Pour cela on reste dans le répertoire _$GOPATH/src/github.com/lightningnetwork/lnd_ et on rentre:
 
 `$ make btcd`
+
 `$ cd $GOPATH/src/github.com/btcsuite/btcd`
+
 `$ GO111MODULE=on go install -v . ./cmd/...`
 
 
@@ -59,7 +63,7 @@ On peut voir que ces commandes ont crée dans chaqun des dossiers, deux repertoi
 
 ### Création de wallet et Authentification
 
-L'interface en ligne de commande lncli permet de gérer les noeuds lnd. La connexion au serveur RPC des noeuds lnd est soumis à authentification via la méthode [Macaroons](https://github.com/lightningnetwork/lnd/issues/20).
+L'interface en ligne de commande lncli permet de gérer les noeuds lnd. La connexion au serveur RPC des noeuds lnd est soumis à authentification via la méthode des [Macaroons](https://github.com/lightningnetwork/lnd/issues/20).
 Pour créer un wallet, lncli doit créer un fichier _admin.macaroon_ (option _--macaroonpath_ pour renseigner le chemin du fichier) et se connecter sur le port du serveur RPC (champ _rpclisten_ du fichier lnd.conf) du noeud lnd via l'option _--rpcserver_:
 
 `$ lncli --rpcserver=localhost:<rpclisten> --macaroonpath=data/chain/bitcoin/simnet/admin.macaroon create`
@@ -103,12 +107,12 @@ On peut maintenant connecter Alice à Bob:
 
 `$ lncli --rpcserver=localhost:<rpclisten_Alice> --macaroonpath=data/chain/bitcoin/simnet/admin.macaroon connect <BOB_PUBKEY>@localhost:<listen_Bob>`
 
-La valeur <listen_Bob> correspond au port sur lequel le lnd écoute les messages relatifs au protocole lightning network provenant d'autres noeuds lnd. Il correspond au champs _listen_ du fichier ldn.conf.
+La valeur <listen_Bob> correspond au port sur lequel le lnd de Bob écoute les messages relatifs au protocole lightning network provenant d'autres noeuds lnd. Il correspond au champs _listen_ du fichier ldn.conf.
 
 
 ### Créer un canal de paiement entre ALice et Bob.
 
-Maintenant qu'Alice et Bob sont conectés, ils peuvent générer un canal de paiement pour effectuer des transactions entre eux:
+Maintenant qu'Alice et Bob sont connectés, ils peuvent générer un canal de paiement pour effectuer des transactions entre eux:
 
 `$ lncli --rpcserver=localhost:<rpclisten_Alice> --macaroonpath=data/chain/bitcoin/simnet/admin.macaroon openchannel  --node_key=<BOB_PUBKEY> --local_amt=1000000`
 
@@ -137,8 +141,8 @@ Pour utiliser l'application, on doit:
 
 * __Editer le fichier App_config__: L'application utilise le fichier de configuration __App_config__ qui définit le port sur lequel le serveur node.js va écouter ainsi que la chemin vers le certificat _tls.cert_ qui est nécéssaire pour l'interaction avec lnd. Sur Mac ce dernier se trouve normalement à "~/Library/Application Support/Lnd/tls.cert". On doit donc editer le fichhier App_config selon nos besoins.
 * __Lancer le serveur__ via la commande *node server*
-* __Lancer le front sur le browser__: Tapper dans la barre de recherche du navigateur: *localhost:<Port>*. On obtient un calculatrice online.
-* __Appuyer sur la touche =__: Pour lancer la transaction de 1 sat, appuyer sur la touche __=__ de la calculatrice. En dessous de cette dernière s'afiche allors un tableau contenant les information relatives à la facture (invoice) qui a été crée par Bob (Exercice 1). Peu (très peu) de temps après, un deuxième tableau apparaît en dessous du premier affichant le resultat de la transaction (exercice 2).
+* __Lancer le front sur le browser__: Tapper dans la barre de recherche du navigateur: *localhost:PortNum* où portNum correspond au numéro de port définit dans la fichier App_config. On obtient alors une calculatrice online.
+* __Appuyer sur la touche =__: Pour lancer la transaction de 1 sat, appuyer sur la touche __=__ de la calculatrice. En dessous de cette dernière s'afiche allors un tableau contenant les informations relatives à la facture (invoice) qui a été crée par Bob (Exercice 1). Peu (très peu) de temps après, un deuxième tableau apparaît en dessous du premier affichant le resultat de la transaction (exercice 2).
 	
 
 ## Sources
