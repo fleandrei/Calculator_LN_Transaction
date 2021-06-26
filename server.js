@@ -105,7 +105,7 @@ websocket.on('connection', function (socket) {
 
 /*Fonction chargée d'effectuer la transaction sur le Lightning Network entre Alice et Bob*/
 function Invoice(websocket){
-	Bob.addInvoice({value:2}, function(err, Invoice) { //Bob initie la transaction en créant une facture (Invoice)
+	Bob.addInvoice({value_msat:1000}, function(err, Invoice) { //Bob initie la transaction en créant une facture (Invoice)
 	if(err){
 		console.log("Err:",err);
 	}
